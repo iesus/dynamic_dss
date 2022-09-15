@@ -1,0 +1,202 @@
+MICROWORLD
+
+VARIABLES AND CONSTANTS
+In our microworld there are several entities. Each entity can belong to one or more classes. 
+We refer to each class using an upper case token (or variable in Prolog e.g., Person) . 
+Each variable is related to a general concept (e.g. Person, Vehicle, Food) 
+and a set of constants (lower case tokens) that can instantiate that variable.
+
+The following are the variables that we use, and their related constants. 
+For example, the variable Person can be instantiated as john, mary or henrietta.
+
+Person: john, mary, henrietta   				%People can experience moods, eat, drink, walk, cross the street and fall
+Vehicle: bus   									%Only vehicles can drive and hit. We assume the vehicle and the driver are a single entity, like a self-driven vehicle.
+Participant: john, mary, henrietta, bus 		%Participants are entities that can be agents of eventualities
+Location: intersection, street_north, street_south, jm_house, h_house, jm_front, h_front  	
+%Places where Participants can be and to which they can move.
+Food: sandwich, fries
+Refreshment: cola, tea
+
+People can move along these locations laid out in this order: jm_house, jm_front, intersection, h_front, h_house
+Vehicles can move along the street which is segmented in: street_north, intersection, street_south
+
+PREDICATES AND PROPOSITIONS
+We use the selected predicates in "interesting_sentences.txt" and extend the list by adding location information and other relevant predicates.
+
+The following are templates of propositions that use the predicates and the aforementioned variables. A full list of propositions can be obtained by replacing 
+the variables with the available constants.
+
+The imperfective paradox arises with ALL accomplishments and culminations. So we decompose each predicate in those 
+categories in phases.
+
+Accomplishments
+	Each accomplishment is divided in 3 phases: begin_accomp, middle_accomp and result_accomp. So, for each of the following templates,
+	we will have 3 proposition templates. For example, walk_to becomes the templates: begin_walk_to(_,_), middle_walk_to(_,_) and result_walk_to(_,_).
+	
+	walk_to(Person,Location)
+	cross_street(Person)
+	drive_to(bus,Location)
+	
+	eat(Person,Food)
+	drink(Person,Refreshment)
+	
+	For eating and drinking, intuitively each phase is related to how far along people are in consuming their food or refreshment.
+	
+	For walk_to, cross_street and drive_to, each phase is related to a change in the state of affairs beyond that proposition.
+	Therefore we relate the phases of these eventualities also with the following predicates:
+	
+		the initial phase co-occurs with place(Participant,Location1), the participant hasn't moved yet, but is about to start moving
+		the middle phase co-occurs with walk(Person) or drive(bus) accordingly,the non-accomplishment predicates are activated, and the participant changes locations
+		the third phase co-occurs with arrive(Participant,Location2) and place(Participant, Location2), the participant reaches the destination which triggers arrive
+	
+	So whenever result_walk_to(Participant,Location2) is the case, arrive(Participant,Location2) and place(Participant,Location2)
+	would also be the case, and so on and so forth.
+		
+Culminations
+	arrive is true whenever a participant changes location and "arrives" at a new one.
+	walk_to is related to the entire movement from an origin to a destination, following a path that may traverse different locations
+	as people walk to a destination they arrive at each location in the path 
+	
+	arrive(Participant,Location) can potentially decompose in:
+	
+		begin_arrive(Participant,Location) %1 time step before location
+		result_arrive(Participant,Location)% person is at new location
+	
+Happenings
+	Hitting and falling are interruptions where people "die" as in a videogame, reappearing in the next time step in their home.
+	This is because after falling or getting hit, the person should be unable to continue their previous activities
+	 
+	begin_hit(bus,Person)
+	result_hit(bus,Person)
+	
+	begin_fall(Person)
+	result_fall(Person)
+	
+States
+	glad(Person)
+	sad(Person)
+	stand(Person)
+	
+Processes
+	smile(Person)
+	walk(Person)
+	drive(bus)
+	rain()
+
+Locations
+	place(Participant,Location)
+	
+
+Some hard constraints specify subtypes of entities defining their possible actions and states.
+These constraints are already enforced above by defining the variables that can be arguments of each predicate 
+and the constants that can instantiate each variable.
+E.g.,: glad(Person), sad(Person) means that only people can be glad or sad
+	   hit(bus,Person) means that only the bus can hit and only people can be hit
+
+A complete list of propositions can be obtained by dividing each of the accomplishments and culminations into their phases
+and instantiating each variable by each of its corresponding constants. 
+
+Two further constraints not encoded above are that the Vehicles can only drive_to to street_south or street_north, but they pass by the intersection.
+And also that people cannot have the street or intersection as final destination, they might pass by the intersection on their way of 
+crossing the street but the final goal is not the street.
+
+Then, walk_to(Paticipant,Location) becomes:
+
+	begin_walk_to(john,j_house)
+	middle_walk_to(john,j_house)
+	result_walk_to(john,j_house)
+	begin_walk_to(john,m_house)
+	middle_walk_to(john,m_house)
+	result_walk_to(john,m_house)
+	begin_walk_to(john,h_house)
+	middle_walk_to(john,h_house)
+	result_walk_to(john,h_house)
+	begin_walk_to(mary,j_house)
+	middle_walk_to(mary,j_house)
+	result_walk_to(mary,j_house)
+	begin_walk_to(mary,m_house)
+	middle_walk_to(mary,m_house)
+	result_walk_to(mary,m_house)
+	begin_walk_to(mary,h_house)
+	middle_walk_to(mary,h_house)
+	result_walk_to(mary,h_house)
+	begin_walk_to(henrietta,j_house)
+	middle_walk_to(henrietta,j_house)
+	result_walk_to(henrietta,j_house)
+	begin_walk_to(henrietta,m_house)
+	middle_walk_to(henrietta,m_house)
+	result_walk_to(henrietta,m_house)
+	begin_walk_to(henrietta,h_house)
+	middle_walk_to(henrietta,h_house)
+	result_walk_to(henrietta,h_house)
+
+
+CO-OCCURRENCE CONSTRAINTS
+Having identified the possible basic propositions, we now identify the constraints related to interactions among propositions:
+
+ACCOMPLISHMENTS AND CULMINATIONS
+
+MOVEMENT
+As stated above, movement predicates have 3 phases, each of them related to changes in the state of affairs. So for example, 
+crossing the street is done like so:
+	begin_cross(Person,street), place(Person,Location1) (1 step) %Here the propositions begin_cross(.) and place(.) co-occur in the same world
+	middle_cross(Person,street),walk(Person)  (2 steps)%Similarly, here middle_cross(...) and walk(...) also co-occur in the same world
+	end_cross(Person,street), arrive(Person,Location2)(1 step)   %same
+
+Location1 and the Location2 are on opposite sides of the street. The number of steps in parentheses can be set stochastically and 
+reflects the duration that each phase takes to finish in the microworld.
+
+Other constraints
+
+If you are beginning to cross the street, you are also beginning to walk and go to the other side:
+	begin_cross(Person,street)->begin_walk(Person,Location) & begin_walk_to(Person,Location)
+similar if you are in the middle or end of crossing the street 
+
+If you are on one side of the street and are moving to a location across the street, it entails you are also crossing the street
+
+If someone is standing, it entails they are not walking or falling, and vice versa
+	stand(Participant)<->not(walk(Participant) | fall(Participant))
+	
+
+EATING AND DRINKING
+For drinking and eating, the decomposition happens as explained above. These eventualities have no implications in the rest 
+of the microworld, so we don't need to reinforce any co-occurrence constraint with other propositions.
+
+Eating and drinking can be done in parallel with any other activity, except falling or being hit 
+and that it takes 3 +- 1 steps to finish the food/refreshment.
+
+Eating or drinking can be interrupted by falling or being hit. After an interruption the person cannot continue eating/drinking.
+
+A person can only eat/drink one food/refreshment at a time
+	
+
+PROCESSES and HAPPENINGS
+no specified "end"/"CUL" %Jesús:In the comments above there was "end/finish CUL (P(x))" in the happenings part, so do happenings have a final phase?
+
+HITTING AND FALLING
+	
+if someone is hit by the bus, the person and the bus are at the intersection
+	hit(bus,Person)-> place(Person,intersection) & place(bus,intersection)
+it also entails that the person was crossing the street and that the bus was previously going to the intersection
+
+Walking somewhere or crossing the street can be interrupted by falling or being hit by the bus.
+After an interruption, the person appears at the initial location in the microworld (a.k.a. their home).
+
+SMILING
+A person smiles with some probability but only if glad(person) is true.
+
+RAINING
+The weather affects the participants mood: if it's raining people tend to be sad, otherwise glad. 
+The probability of changing the weather is lower than the probability of staying in the same weather.
+That is, P(rain| in the previous time step it was raining)>P(not-rain|previous time step it was raining) and also
+		 P(not-rain| in the previous time step it was not raining)>P(rain|in the previous time step it was not raining)
+This results in chunks of multiple sequential time steps where it is raining and other chunks where it is not raining.
+
+OTHER HARD CONSTRAINTS ON LOCATIONS
+	- Each Participant can be at exactly one location at any given time.
+	- The bus can only be on the street.
+	- Participants can only arrive at a location from an adjacent location.
+	
+	
+
+	 

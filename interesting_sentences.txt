@@ -1,0 +1,173 @@
+Dowty 1979:
+		John was drawing a circle
+		John drew a circle
+		John will have drawn a circle
+		John was writing a symphony
+		John was writing a part of a symphony
+		John was falling asleep
+		John fell asleep
+		John was dying
+		John died
+		John lived in Boston for 3 years
+		John walked from the Post Office to the Bank
+		Yesterday John came and went
+		John is washing his car
+		The lamp is falling off the table
+		John was watching television when Bill entered the room
+		John was watching television when he fell asleep
+		John was pushing a cart
+		John pushed a cart
+		
+Guenther 1979: 
+		John is dying
+		John was building a house
+		John builds a house
+		
+Landman 1992:
+		Mary is building a house
+		Mary is running
+		Mary was building a house that she would finish.
+		Mary tried to find a unicorn.
+		Mary tried to find a unicorn that she would find.
+		God was creating a unicorn, when He changed his mind.
+		Mary was crossing the Atlantic.
+		Mary was crossing the street, when the first truck hit her.
+		If the first truck hadn't hit her, the second truck would have.
+		Mary was wiping out the Roman army.
+		
+Asher 1992:
+		Henrietta was crossing the street, when she was hit by a bus
+		The wheel was rolling across the road when it was knocked over by the falling rock
+		The meteor was plunging to earth when it was vaporized by the laser beam
+		Henrietta was crossing the street
+		Henrietta was walking to her death
+		Irene is cooking fish stew, but the cat is eating the fish
+		Henrietta was crossing the street but she didn't make it to the other side
+		Whenever John gets home, he is typically in a bad mood
+		In general if John is going home, he typically is going to be in a bad mood
+		The ball is rolling off the table
+		Henrietta was trying to cross the street when she was run over by a bus
+		The rock is rolling across the road
+		The rock is rolling across the road and down to the bottom of the valley.
+		Henrietta is drinking a glass of wine.
+		Henrietta was drinking three glasses of wine and a cup of tea
+		Samantha was crossing a minefield, when she was blown up
+		John won the race at 10 am. 
+		John was winning the race sometime before 10am
+		John ran from 10 to 11. 
+		John was running from 10 to 11.
+
+Zucchi 1999:
+		Carnap flew to the moon
+		Terry be at home
+		Mary built Villa Maria.
+		Villa Maria is a house.
+		Mary built a house.
+		Mary looked for a unicorn.
+		John was going to Chicago when I met him.
+		John was crossing the street when I met him.
+		John was drinking three cups of tea when I arrived.
+		John saw Mary cross the street.
+		He saw the bus hitting her when she was halfway across.
+		John saw Mary crossing the street.
+		
+Nadathur 2021:
+		Maya wrote a novel.
+		Mahler was writing a tenth symphony (when he died).
+		Maya is driving to San Francisco or Sacramento.
+		
+Filip:
+		Jones is walking to Rome
+		Jones has walked to Rome
+		The rock hit the window
+		The air smells of jasmine.
+		It’s snowing.
+		The sun went down.
+		The pebble hit the water.
+======================================================================================		
+VERBS/EVENTUALITIES
+
+accomplishments:
+	walk from X to Y
+	walk to somewhere
+	drive to somewhere
+	go somewhere
+	cross the street
+	roll across the road
+	
+	draw something
+	write something
+	build something
+	cook something
+	eat something
+	drink something
+	wash something
+	
+	roll off something
+	live somewhere for X time
+	sun go down
+
+culminations
+	fall asleep
+	die
+	enter something
+	win something
+
+happenings
+	hit something
+	run over something
+	fall
+
+states:
+	smell of something
+	be something
+
+processes:
+	watch TV
+	run
+	fly
+	walk
+	look for something
+	push something
+	try something
+	see someone doing something
+	snow
+======================================================================================
+SELECTED PREDICATES
+
+Accomplishments
+	go(Participant,Location)
+	walk(Person,Location)
+	cross(Person,street)
+	drive(bus,intersection)
+	eat(Person,Food)
+	drink(Person,Drink)
+
+Culminations
+	arrive(Participant,Location)*
+	
+Happenings
+	hit(bus,Person)
+
+States
+	be(Person,Mood)
+	stand(Person)*
+	
+Processes
+	smile(Person)*
+	walk(Person)
+	rain()*
+	
+*:not in the papers
+	
+
+
+		
+
+
+
+
+
+		 
+		
+	

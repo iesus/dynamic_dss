@@ -1,0 +1,92 @@
+
+Templates for the sentences that we would like to generate
+Tokens starting with upper case letters are Variables
+
+Simple present tense in English has a predominant generic interpretation, i.e., it states a rule, generalization, habit, regularity.
+Because of that, and also because the worlds do not encode temporal indices, all our sentences are in the past tense. 
+
+
+The bus drove to Location.			result_drive(bus,Location)
+The bus was driving to Location.	begin_drive(bus,Location)|middle_drive(bus,Location) 
+
+Participant arrived at Location.		result_arrive(Participant,Location)
+Participant was arriving at Location.   begin_arrive(Participant,Location) | middle_arrive(Participant,Location)
+
+Person walked.						walk(Person)
+Person was walking.					walk(Person)
+Person walked to Location.			result_walk_to(Person,Location)
+Person was walking to Location.		begin_walk_to(Person,Location)|middle_walk_to(Person,Location)
+
+Person crossed the street.			result_cross(Person,street)
+Person was crossing the street.		begin_cross(Person,street) |
+
+The bus drove to Location.			result_drive(bus,Location)
+The bus was driving to Location.	begin_drive(bus,Location) | middle_drive(bus,Location)
+
+Person ate something.				result_eat(Person,sandwich)|result_eat(Person,fries)
+Person was eating something.		begin_eat(Person,sandwich)|begin_eat(Person,fries) |middle_eat(Person,sandwich) |middle_eat(Person,fries)
+Person ate Food.					result_eat(Person,Food)
+Person was eating Food.				begin_eat(Person,Food) | middle_eat(Person,Food)
+
+Person drank something.				result_drink(Person,cola)|result_drink(Person,tea)
+Person was drinking	something.		begin_drink(Person,cola)|begin_drink(Person,tea) |middle_drink(Person,cola)|middle_drink(Person,tea)
+Person drank Refreshment.			result_drink(Person,Refreshment)
+Person was drinking Refreshment.	begin_drink(Person,Refreshment) | middle_drink(Person,Refreshment)
+Person drank Refreshment at Location.			result_drink(Person,Refreshment)&place(Person,Location)
+Person was drinking Refreshment at Location.	(begin_drink(Person,Refreshment) | middle_drink(Person,Refreshment))&place(Person,Location)					
+					
+The bus hit Person.					hit(bus,Person)
+
+Person was sad.						sad(Person)
+Person was glad. 					glad(Person)
+
+Participant was in Location.		place(Participant,Location)
+
+Person stood.						stand(Person)
+Person was standing.				stand(Person)
+Person stood at Location			stand(Person)&place(Person,Location)
+Person was standing at Location		stand(Person)&place(Person,Location)
+
+Person smiled						smile(Person)
+Person was smiling					smile(Person)
+
+it rained							rain()
+it was raining						rain()
+
+All the sentences not related to movement can be further specified adding the location, like in:
+Person stood at Location			stand(Person)&place(Person,Location)
+
+Some complex sentences that might be interesting are using "when" or "and"
+
+Person was crossing the street when the bus hit him/her.   middle_cross(Person,street)&hit(bus,Person)
+Person1 was crossing the street and smiling.	  (begin_cross(Person1,street)|middle_cross(Person1,street))&smile(Person1)
+Person was walking and eating Food				  (walk(Person)|begin_walk(Person,_))&(begin_eat(Person,Food)|middle_eat(Person,Food)
+
+Person crossed the street and ate a sandwich.			
+result_cross(Person,street) & result_eat(Person,sandwich) (Here the crossing and the eating finished at the same time)
+
+Person crossed the street and was eating a sandwich. 			
+result_cross(Person,street) & (begin_eat(Person,sandwich)|middle_eat(Person,sandwich)) (Here the eating is not yet finished but the crossing is finished)
+
+Person was crossing the street and eating a sandwich when the bus hit him/her. 
+(being_cross(Person,street)|middle_cross(Person,street))&(begin_eat(Person,sandwich)|middle_eat(Person,sandwich))&hit(bus,Person) (the eating and crossing are never finished)
+
+Person was walking to Location house when he/she fell.
+(begin_walk(Person,Location)|middle_walk(Person,Location)&begin_fall(Person)
+
+
+Person was walking to Location when the bus hit him/her.
+middle_walk(Person,Location)&hit(bus,Person)
+
+Person was glad when the bus hit him/her.
+glad(Person)&hit(bus,Person)
+
+It was raining when Person fell.
+rain() & result_fall(Person)
+
+It was raining when Person was crossing the street and the bus hit him/her.
+rain()&middle_cross(Person,street)&hit(bus,Person)
+
+Person1 was glad when Person2 was crossing the street and the bus hit him/her [Here we can have referential ambiguity if Person1 and Person2 are female]
+glad(Person1)& middle_cross_street(Person2)&hit(bus,Person2)  [the last pronoun refers to the Person2]
+

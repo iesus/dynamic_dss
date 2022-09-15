@@ -219,7 +219,7 @@ format_item(Sen,Meta,InputVecs,TargetVecs,Stream) :-
         format(Stream,'\"~w\"\n',Meta), %% ~s to ~w for Sem
         format_events(InputVecs,TargetVecs,Stream),
         format(Stream,'\n',[]).
-%JESUS        
+%JESUS CALVILLO        
 format_item_short(Sen,Meta,TargetVec,Stream) :-
         format(Stream,'\"',[]),
         format_name(Sen,Stream),

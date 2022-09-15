@@ -40,9 +40,9 @@ each specific microworld:
 
 We utilize/adapt the DSS [dispace](https://github.com/hbrouwer/dispace) implementation of Harm Brouwer in order to generate sentences 
 with their propositional logic form. We also adapt the quantification rules in [here](https://github.com/hbrouwer/dfs-tools/blob/master/worlds/wollic2019.pl).
-The folder [local_dispace](https://github.com/iesus/dynamic_dss/src/dss) contains a copy of the dispace repository from 05-April-2022. 
-The repository is as taken from the source, except that the file [street_life.pl](https://github.com/iesus/dynamic_dss/src/dss/worlds/street_life.pl) was added, which contains the 
-definition of our microworld. Additionally, the file [gen_sets.pl](https://github.com/iesus/dynamic_dss/src/dss/src/gen/gen_sets.pl) was modified by adding modifications of some 
+The folder [local_dispace](https://github.com/iesus/dynamic_dss/blob/main/src/dss) contains a copy of the dispace repository from 05-April-2022. 
+The repository is as taken from the source, except that the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob/main/src/dss/worlds/street_life.pl) was added, which contains the 
+definition of our microworld. Additionally, the file [gen_sets.pl](https://github.com/iesus/dynamic_dss/blob/main/src/dss/src/gen/gen_sets.pl) was modified by adding modifications of some 
 rules. The original rules were preserved, and the new modified rules were added with the comment "%JESUS CALVILLO" above their definition.
 
 

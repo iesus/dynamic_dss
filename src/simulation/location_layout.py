@@ -21,6 +21,7 @@ Created on March, 3rd 2022
 '''
 from copy import deepcopy
 
+
 class Location:
     def __init__(self, name,coords):
         self.name = name

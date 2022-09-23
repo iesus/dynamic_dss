@@ -15,6 +15,8 @@
 %     limitations under the License.
 '''
 
+
+
 if __name__ == '__main__':
 
     import copy
@@ -235,16 +237,15 @@ if __name__ == '__main__':
     models=world.run(30000,random)
     
     #Then we save the generated observations into files
-    
     with open("../outputs/street_life_model/street_life30K.observations",'w') as output_file:
         models[0].print_basic_propositions(file=output_file) 
         for model in models: model.print_binary_vector(file=output_file)
     
     #The file street_life.observations can be used to test that nothing has changed during refactoring:
     #If something changes, the output with random seed=10 would be different
-    
+
     exit()
-    #The files that can be generated below are quite verbosed, so they are mostly used for debugging because they can become huge if we sample say 10,000 observations
+    #The files that are generated below are quite verbosed, so they are mostly used for debugging because they can become huge if we sample say 10,000 observations
     with open("../outputs/street_life_model/formal_models1000.txt",'w') as output_file: 
         for model in models:
             model.print_me(only_true=False,file=output_file)

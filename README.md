@@ -62,7 +62,7 @@ The output files generated are not included in the github repository due to limi
 In contrast to [2-6], who generate the situation space matrix using a prolog script that samples observations independently from one another, here
 we define a microworld in Python such that each observation depends on the previous one.
 
-This is done in the file [street_life_world.py](https://github.com/iesus/Luuk_Hana_Jesus/blob/main/src/simulation/street_life_world.py), which uses
+This is done in the file [street_life_world.py](https://github.com/iesus/dynamic_dss/blob/main/src/simulation/street_life_world.py), which uses
 classes and methods from the files in the same directory. 
 
 At the end of the file, the line:
@@ -81,7 +81,7 @@ generate a file that can be read by prolog, in order to be used by the rest of t
 ### Defining a Grammar that Generates Sentences with Propositional Form Semantics (Step 2)
 
 Similar to [1-6], I use the DSS prolog implementation in order to define a grammar that generates sentences with their propositional logic form semantics.
-The grammar for "Street Life" is in the file [street_life.pl](https://github.com/iesus/Luuk_Hana_Jesus/blob/main/src/dss/worlds/street_life.pl).
+The grammar for "Street Life" is in the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob//main/src/dss/worlds/street_life.pl).
 
 One can run that file using SWIPL. After loading it, one can generate the sentences and write the to file using the line:
 ```
@@ -96,7 +96,7 @@ and coordinated sentences. The output file contains sentences with the propositi
 Having the situation space matrix defined and saved to a file using the Python code, we can load it in prolog in order to use it with the
 DSS code to generate the sentences and link them to their DSS representations. 
 
-In order to do so, one has to first load the file [street_life.pl](https://github.com/iesus/Luuk_Hana_Jesus/blob/main/src/dss/worlds/street_life.pl) with
+In order to do so, one has to first load the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob//main/src/dss/worlds/street_life.pl) with
 swipl (this file references code in the whole dss directory). Then run the following line:
 
 ```
@@ -117,7 +117,7 @@ Different visualizations for the dataset created with the Street Life microworld
 
 The proposed model architecture at this point is the one in the following image:
 
-![Model Architecture](https://github.com/iesus/Luuk_Hana_Jesus/blob/main/architecute.png)
+![Model Architecture](https://github.com/iesus/dynamic_dss/blob//main/architecute.png)
 
 The model has 3 main parts, the part inside the blue rectangle is essentially the same as the model in Frank et al. (2009): a model of sentence comprehension that maps sentences to their semantic representations, in this case belief vectors. The part inside the green rectangle is very similar to the model of Elman & McRae: given a state-of-affairs, it predicts the next state(s). The part inside the yellow rectangle is identical to the green rectangle, except that it infers the previous state-of-affairs given the current state-of-affairs. Together, the model can receive a sentence and:
 

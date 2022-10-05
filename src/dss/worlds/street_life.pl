@@ -24,6 +24,10 @@
 %
 %%%%%
 %%%%%
+%This line reloads the prolog file, generates the sentences and writes them to a file
+%make,forall(sentence((Sen,Sem)),(writeln(Sen),writeln(Sem),nl)).
+%
+
 
 :- use_module('../src/dispace.pl').
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,35 +108,27 @@ refreshment('tea').
 %%                           S E N T E N C E S                           %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%% Structures %%%%
 
-%sentence((Sen,Sem)) :- s_simpl(Sem,Sen,[]).
-%sentence('train',Sem) :- s_simpl(Sem,Sen,[]).
-%sentence('train',Sem) :- s_coord(Sem,Sen,[]).
-%sentence(Set,Sem,Sen,[])
 %%%% Sentences %%%%
+%Generates simple sentences that consist of an NP VP and potentially a (prepositional) complement
 sentence('simple',Sem) --> n(Subj_Type,Subj), vp(Sent_Type,Subj_Type,Verb,Subj,Obj), app(Sent_Type,Subj_Type,Verb,Subj,Obj,Sem).
-%s_simpl(Sem) --> n(Subj_Type,Subj), vp(Sent_Type,Subj_Type,Verb,Subj,Obj), app(Sent_Type,Subj_Type,Verb,Subj,Obj,Sem).
 
+%Generates sentences with coordination where 2 simple sentences generated with the rule above are concatenated with a "when" in between
 sentence('coord',Sem) --> n(Subj_Type1,Subj1), vp(Sent_Type1,Subj_Type1,Verb1,Subj1,Obj1), app(Sent_Type1,Subj_Type1,Verb1,Subj1,Obj1,Sem1), ['when'],
 		 n(Subj_Type2,Subj2), vp(Sent_Type2,Subj_Type2,Verb2,Subj2,Obj2), app(Sent_Type2,Subj_Type2,Verb2,Subj2,Obj2,Sem2),
 		 {Subj1  \= Subj2,
 		 Sem = and(Sem1,Sem2)
 		 }.
-
+%The following are examples of rules to generate sentences with specific verbs
 %s_simpl(Sem) --> n(Subj_Type,Subj), vp(Subj_Type,drink,Subj,Obj), app(Subj_Type,drink,Subj,Obj,Sem).
 %s_simpl(Sem) --> n(Subj_Type,Subj), vp(Subj_Type,walk,Subj,Obj), app(Subj_Type,walk,Subj,Obj,Sem).
 %s_simpl(Sem) --> n(Subj_Type,Subj), vp(Subj_Type,cross_street,Subj,Obj), app(Subj_Type,cross_street,Subj,Obj,Sem).
 %s_simpl(Sem) --> n(Subj_Type,Subj), vp(Subj_Type,rain,Subj,Obj), app(Subj_Type,rain,Subj,Obj,Sem).
 %s_simpl(Sem) --> n(Subj_type,Subj), vp(Subj_Type,stand,Subj,_), app(Sybj_Type,stand,Subj,_,Sem).
 
-%s_coord(Sem) --> np1(N), vp(V,N,O,_), vp_coord(V,N,O,Sem).
-%s_coord(Sem) --> s_simpl(Sem1),['when'], s_simpl(Sem2),
-%		{Sem1 \= Sem2,
-%		Sem = and(Sem1,Sem2)
-%		}.
 
 %%%% Nouns, NPs: Entities %%%%
+%Participants (can initiate eventualities)
 n(expletive,it)		--> ['it'].
 n(person,john) 		--> ['john'].
 n(person,john)		--> ['the','man'].
@@ -144,6 +140,7 @@ n(person,a_woman)	--> ['a','woman'].
 n(person,the_women)	--> ['the','women'].
 n(vehicle,bus) 		--> ['the','bus'].
 
+%Things and moods
 n(food,sandwich) 	--> ['a','sandwich'].
 n(food,fries)		--> ['fries'].
 n(food,some_food)	--> ['some','food'].
@@ -152,21 +149,27 @@ n(refreshment,tea)  	--> ['a','tea'].
 n(mood,glad)		--> ['glad'].
 n(mood,sad)		--> ['sad'].
 
+%Locations
+%Within the street
 n(place_v,street_north) --> ['the','street','s','north','side'].
 n(place_v,street_south) --> ['the','street','s','south','side'].
 n(place_v,intersection) --> ['the','intersection'].
 
+%People's locations
 n(place_p,intersection) --> ['the','intersection'].
 n(place_p,jm_house)	--> ['john','and','mary','s','house'].
 n(place_p,h_house) 	--> ['henrietta','s','house'].
 n(place_p,jm_front)	--> ['john','and','mary','s','house','s','front'].
 n(place_p,h_front) 	--> ['henrietta','s','house','s','front'].
 
+%Prepositional phrases
 pp_at(Place_Type, NP)	--> ['at'], n(Place_Type,NP).
 pp_to(Place_Type, NP)   --> ['to'], n(Place_Type,NP).
 
-%make,forall(sentence((Sen,Sem)),(writeln(Sen),writeln(Sem),nl)).
-%%%% Main Clause VPs %%%%
+
+
+%%%%  VPs %%%%
+%These only generates the VP up to the verb, any further complements are added through the APP rules
 
 vp(simple,expletive,rain,_,_)			--> ['rained'].
 vp(progressive,expletive,rain,_,_)		--> ['was','raining'].
@@ -205,9 +208,15 @@ vp(simple,person,glad,_,_)  	--> ['was','glad'].
 vp(simple,person,sad,_,_)  	--> ['was','sad'].
 vp(simple,vehicle,hit,_,_)	--> ['hit'].
 
+
+%%APP rules. They add complements to the sentences. Each verb has 
+%its corresponding rules, with so many rules as potential variations of the complements
+
+%RAIN
 app(_,expletive,rain,_,_,Sem) -->[],
 	{Sem =.. [rain]}.
-          
+     
+%STAND     
 app(_,person,stand,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(stand,Ss,Qu,[],_,Sem)
@@ -219,7 +228,7 @@ app(_,person,stand,Subj,_,Sem) -->pp_at(place_p,Place),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
-
+%SMILE
 app(_,person,smile,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(smile,Ss,Qu,[],_,Sem)
@@ -231,6 +240,7 @@ app(_,person,smile,Subj,_,Sem) -->pp_at(place_p,Place),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
+%WALK
 app(_,person,walk,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(walk,Ss,Qu,[],_,Sem)
@@ -241,7 +251,8 @@ app(_,person,walk,Subj,_,Sem) -->pp_at(place_p,Place),
 	 place_semantics(Place,Pl_Sem,QuP),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
-	}.	
+	}.
+%GLAD	
 app(simple,person,glad,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(glad,Ss,Qu,[],_,Sem)
@@ -252,7 +263,8 @@ app(simple,person,glad,Subj,_,Sem) -->pp_at(place_p,Place),
 	 place_semantics(Place,Pl_Sem,QuP),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
-	}.	
+	}.
+%SAD	
 app(simple,person,sad,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(sad,Ss,Qu,[],_,Sem)
@@ -264,7 +276,7 @@ app(simple,person,sad,Subj,_,Sem) -->pp_at(place_p,Place),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
-
+%FALL
 app(simple,person,result_fall,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(result_fall,Ss,Qu,[],_,Sem)
@@ -286,7 +298,8 @@ app(progressive,person,begin_fall,Subj,_,Sem) -->pp_at(place_p,Place),
 	 place_semantics(Place,Pl_Sem,QuP),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
-	}.
+ 	 }.
+%ARRIVE (here we have the deffinition for people
 app(simple,person,result_arrive,Subj,_,Sem) -->pp_to(place_p,Place),
 	{sbj_semantics(Subj,Ss,QuS),
 	 place_semantics(Place,Pl_Sem,QuP),
@@ -297,6 +310,7 @@ app(simple,person,begin_arrive,Subj,_,Sem) -->pp_to(place_p,Place),
 	 place_semantics(Place,Pl_Sem,QuP),
 	 qtf_semantics(begin_arrive,Ss,QuS,Pl_Sem,QuP,Sem)
 	}.
+%CROSS STREET
 app(simple,person,result_cross_street,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(result_cross_street,Ss,Qu,[],_,Sem)
@@ -307,6 +321,7 @@ app(progressive,person,begin_cross_street,Subj,_,Sem) -->[],
 	 qtf_semantics(middle_cross_street,Ss,Qu,[],_,Sem2),
 	 Sem = or(Sem1,Sem2)
 	}.
+%EAT
 app(simple,person,result_eat,Subj,_,Sem) -->n(food,Food),
 	{sbj_semantics(Subj,Ss,QuS),
 	 obj_semantics(Food,Objs,QuO),
@@ -337,6 +352,7 @@ app(progressive,person,begin_eat,Subj,_,Sem) -->n(food,Food),pp_at(place_p,Place
 	 qtf_semantics(place,Ss,QuS,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
+%DRINK
 app(simple,person,result_drink,Subj,_,Sem) -->n(refreshment,Refreshment),
 	{sbj_semantics(Subj,Ss,QuS),
 	 obj_semantics(Refreshment,Objs,QuO),
@@ -368,7 +384,7 @@ app(progressive,person,begin_drink,Subj,_,Sem) -->n(refreshment,Refreshment),pp_
 	 qtf_semantics(place,Ss,QuS,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
-
+%WALK TO
 app(simple,person,result_walk_to,Subj,_,Sem) -->pp_to(place_p,Place),
 	{sbj_semantics(Subj,Ss,QuS),
 	 place_semantics(Place,Pl_Sem,QuP),
@@ -385,7 +401,7 @@ app(progressive,person,begin_walk_to,Subj,_,Sem) -->pp_to(place_p,Place),
 	 qtf_semantics(middle_walk_to,Ss,QuS,Pl_Sem,QuP,Sem2),
 	 Sem=or(Sem1,Sem2)
 	}.
-	
+%DRIVE
 app(_,vehicle,drive,Subj,_,Sem) -->[],
 	{sbj_semantics(Subj,Ss,Qu),
 	 qtf_semantics(drive,Ss,Qu,[],_,Sem)
@@ -397,23 +413,7 @@ app(_,vehicle,drive,Subj,_,Sem) -->pp_at(place_v,Place),
 	 qtf_semantics(place,Ss,Qu,Pl_Sem,QuP,Place_Sem),
 	 dss_coordinate_disjuncts(Subj_Sem,Place_Sem,Sem)
 	}.
-app(simple,vehicle,result_drive_to,Subj,_,Sem) -->pp_to(place_v,Place),
-	{sbj_semantics(Subj,Ss,QuS),
-	 place_semantics(Place,Pl_Sem,QuP),
-	 qtf_semantics(result_drive_to,Ss,QuS,Pl_Sem,QuP,Sem)
-	}.
-app(simple,vehicle,result_arrive,Subj,_,Sem) -->pp_to(place_v,Place),
-	{sbj_semantics(Subj,Ss,QuS),
-	 place_semantics(Place,Pl_Sem,QuP),
-	 qtf_semantics(result_arrive,Ss,QuS,Pl_Sem,QuP,Sem)
-	}.
-	
-app(simple,vehicle,result_hit,Subj,_,Sem) -->n(person,Person),
-	{sbj_semantics(Subj,Ss,QuS),
-	 obj_semantics(Person,Objs,QuO),
-	 qtf_semantics(result_hit,Ss,QuS,Objs,QuO,Sem)
-	}.
-
+%DRIVE_TO (this is the form where we specify a destination)
 app(progressive,vehicle,begin_drive_to,Subj,_,Sem) -->pp_to(place_v,Place),
 	{sbj_semantics(Subj,Ss,QuS),
 	 place_semantics(Place,Pl_Sem,QuP),
@@ -421,12 +421,23 @@ app(progressive,vehicle,begin_drive_to,Subj,_,Sem) -->pp_to(place_v,Place),
 	 qtf_semantics(middle_drive,Ss,QuS,Pl_Sem,QuP,Sem2),
 	 Sem = or(Sem1,Sem2)
 	}.
+app(simple,vehicle,result_drive_to,Subj,_,Sem) -->pp_to(place_v,Place),
+	{sbj_semantics(Subj,Ss,QuS),
+	 place_semantics(Place,Pl_Sem,QuP),
+	 qtf_semantics(result_drive_to,Ss,QuS,Pl_Sem,QuP,Sem)
+	}.
+%ARRIVE (this version is only for vehicles)
 app(progressive,vehicle,begin_arrive,Subj,_,Sem) -->pp_to(place_v,Place),
 	{sbj_semantics(Subj,Ss,QuS),
 	 place_semantics(Place,Pl_Sem,QuP),
 	 qtf_semantics(begin_arrive,Ss,QuS,Pl_Sem,QuP,Sem)
+	}.	
+app(simple,vehicle,result_arrive,Subj,_,Sem) -->pp_to(place_v,Place),
+	{sbj_semantics(Subj,Ss,QuS),
+	 place_semantics(Place,Pl_Sem,QuP),
+	 qtf_semantics(result_arrive,Ss,QuS,Pl_Sem,QuP,Sem)
 	}.
-	
+%HIT
 app(simple,vehicle,hit,Subj,_,Sem) -->n(person,Person),
 	{sbj_semantics(Subj,Ss,QuS),
 	 obj_semantics(Person,Objs,QuO),
@@ -485,7 +496,8 @@ qtf_semantics_(Pred,S,_,[Obj|Objs],'eq',or(Sem1,Sem2)) :-
 qtf_semantics_(Pred,S,_,[Obj|Objs],'uq',and(Sem1,Sem2)) :- 
 	!,Sem1 =.. [Pred,S,Obj],
 	qtf_semantics_(Pred,S,_,Objs,'uq',Sem2).
-        
+    
+%This rule generates all sentences with the grammar and outputs them to a file    
 write_sentences:-
     open('output_sentences_simple.txt',write,Out),
     (forall(sentence('simple',Sem,Sen,[]),(writeln(Out,Sen),writeln(Out,Sem))),

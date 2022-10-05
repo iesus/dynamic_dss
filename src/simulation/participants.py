@@ -12,12 +12,18 @@
 %     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %     See the License for the specific language governing permissions and
 %     limitations under the License.
+
+Here we defined mostly the behavior of the participants. We also have a Thing class, but it doesn't have much functionality.
+
 '''
 
 
 from eventualities import Eventuality
 
 class Thing:
+    '''
+    Refers to things like food, drinks, etc. They are patients of eventualities.
+    '''
     def __init__(self,name,category,microworld):
         self.name=name
         self.category=category
@@ -25,6 +31,9 @@ class Thing:
 
 
 class Participant:
+    '''
+    A participant can be an agent of an eventuality. In the Street Life microworld, participants are people and vehicles.
+    '''
     def __init__(self, name,category,microworld, locations):
         self.name = name
         self.category=category #what category they are in the onthology
@@ -49,6 +58,9 @@ class Participant:
         for prop in self.propositions:print("\t"+str(prop))
         
     def get_possible_propositions(self):
+        '''
+        Returns the list of basic propositions that the participant can initiate, plus the location propositions place(participant,location)
+        '''
         propositions=[]
         for location in self.locations:propositions.append(("place",self.name,location))
 
@@ -94,6 +106,9 @@ class Participant:
 
 
     def return_abilities(self, current_new_eventualities):
+        '''
+        Once an eventuality is finished, the participant can initiate the same activity again 
+        '''
         for eventuality in current_new_eventualities:
             if eventuality.type.name not in self.current_abilities:
                 self.current_abilities.append(eventuality.type.name)
@@ -220,12 +235,11 @@ class Participant:
                 new_eventualities.extend(new_effect_eventualities)
                 new_eventualities.append(new_eventuality)
 
-        
+        #If a person is not walking, falling or standing, we make them stand
         if self.category=="people" and \
            current_model.proposition_values[("walk",self.name)]==0 and \
            current_model.proposition_values[("begin_fall",self.name)]==0 and \
            current_model.proposition_values[("stand",self.name)]==0:
-            #If a person is not walking, falling or standing, we make them stand
             
             new_eventuality=Eventuality(self.abilities["stand"], current_model.time, self.current_location,random_generator, roles={"agent":self})   
             new_effect_eventualities=self.microworld.apply_eventuality_effects(new_eventuality, current_model,random_generator)

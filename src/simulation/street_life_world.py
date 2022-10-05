@@ -13,6 +13,14 @@
 %     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %     See the License for the specific language governing permissions and
 %     limitations under the License.
+
+Here is the definition of the Microworld "Street Life". It consists of the following parts:
+- Locations
+- Ontology of entities (people, vehicles, things)
+- Eventualities and their restrictions
+- Probabilities of how eventualities occur
+
+When all of these are defined, we can initiate the microworld and sample observations.
 '''
 
 
@@ -87,6 +95,7 @@ if __name__ == '__main__':
     ###EVENTUALITITES### 
     #(eventuality_name, duration_mean, duration_variation) duration_variation gives the range of values the eventuality can last (duration_mean+-duration_variation)
     #NOTE: mean_duration>variation  otherwise we end up with durations of 0 
+    #First we divide the eventualities according to their aspectual types, which guides how to divide the eventualities into phases
     all_eventuality_types={}
     all_eventuality_types["state"]=[("stand",2,1),("glad",2,1),("sad",2,1)]
     all_eventuality_types["process"]=[("walk",2,1),("smile",1,0),("rain",3,1),("drive",3,1)]
@@ -100,7 +109,7 @@ if __name__ == '__main__':
             world.eventuality_types[ev_t]=Eventuality_Type(ev_t,aspectual_type,dur_mean,dur_variation)
 
     
-    #LOCATIONS WHERE EACH PREDICATE/EVENTUALITY CAN BEGIN
+    #LOCATIONS WHERE EACH PREDICATE/EVENTUALITY CAN INITIATE
     standard_people_initial_locations=["fall","glad","sad","smile","drink","eat","arrive"]
     for predicate in standard_people_initial_locations:
         world.eventuality_types[predicate].initial_locations=location_constraints["people"]
@@ -115,32 +124,32 @@ if __name__ == '__main__':
         world.eventuality_types[predicate].initial_locations=location_constraints["vehicles"]
     world.eventuality_types["hit"].initial_locations=["intersection"]
     
+    #Some eventualities INTERRUPT the activities of the patient (hit) or agent (fall)
     world.eventuality_types["hit"].interrupts_patient=True
     world.eventuality_types["fall"].interrupts_agent=True
     
+    #RESTRICTIONS ON WHAT EVENTUALITIES CAN CO-OCCUR
     #"me" stands for the agent's name
     #"any_location" means the requirement is fulfilled if at least for one location the proposition has the required value
-    #"all_locations" is similar but with an all relationship
+    #"all_locations" is similar but with an "all" relationship
     world.eventuality_types["fall"].requirements=[(("walk","me"),1)]#if someone falls, they must have been walking
     world.eventuality_types["stand"].requirements=[(("place","me","intersection"),0),# one cannot stand at the intersection
                                                    (("walk","me"),0)] #and one cannot stand and walk at the same time
     #One cannot start walking if there is an standing, crossing the street or walking going on 
     world.eventuality_types["walk_to"].requirements=[(("stand","me"),0),(("walk","me"),0)]
-                                                           #(("walk_to","me","all_locations"),0)]
     world.eventuality_types["smile"].requirements=[(("glad","me"),1)]#people only smile when they are glad
-    world.eventuality_types["glad"].requirements=[(("sad","me"),0)]#one cannot be sad and glad simultaneously
+    #one cannot be sad and glad simultaneously
+    world.eventuality_types["glad"].requirements=[(("sad","me"),0)]
     world.eventuality_types["sad"].requirements=[(("glad","me"),0)]
-    #The decision of crossing the street can only happen if there isn't an ongoing walking
-    #world.eventuality_types["cross_street"].requirements=[(("stand","me"),0), (("walk","me"),0)]
  
-
     #Some eventualities trigger other eventualities, when they begin (b) or end (e)
-    world.eventuality_types["walk_to"].consequences=[(("b","walk","me"),1)]#, (("e","middle_walk_to","me","location"),1)]
+    #If someone walks to reach some location (walk_to), they are walking (walk). Similar for drive
+    world.eventuality_types["walk_to"].consequences=[(("b","walk","me"),1)]
     world.eventuality_types["cross_street"].consequences=[(("b","walk","me"),1)]
     world.eventuality_types["drive_to"].consequences=[(("b","drive","me"),1)]
     #We can also use "patient", similar to "me" to refer to the patient of the eventuality
     
-
+    #We establish what role fillers can be expected for each eventuality
     agent_predicates={}
     agent_predicates["people"]=["walk","stand","glad","sad","smile",
                        "cross_street","fall", "eat","drink","walk_to","arrive"]    
@@ -163,20 +172,23 @@ if __name__ == '__main__':
     world.eventuality_types["drive_to"].add_role_fillers("destination",location_constraints["vehicles"])
     world.eventuality_types["arrive"].add_role_fillers("destination",location_names)
     
-
+    #Having the role fillers, we can generate the list of basic propositions that defines the microworld
     for participant in world.participants.values():
         participant.get_possible_propositions()
         participant.current_possible_propositions=copy.deepcopy(participant.abilities)
         world.propositions.extend(participant.propositions)
-    world.propositions.append(("rain",))
+    world.propositions.append(("rain",)) #Since raining happens without any participant doing it, we add it manually
 
     #world.print_participants()
     #world.print_eventualities()
-    #print(len(world.propositions))
     #world.print_propositions()
     
     ###PROBABILITIES###
-    prob_distros={}
+    #These probabilities are used ONLY when the given eventuality is possible, which depends on the current and previous 
+    #states of affairs of the microworld. Therefore, these do not reflect the true probability of the given eventualities,  
+    #they reflect P( e | e is possible at this point) 
+    
+    prob_distros={} #All of these are first stored in a dictionary
     
     #Rain only depends on whether it was raining at the previous time step
     prob_distros["rain"]={}
@@ -185,11 +197,14 @@ if __name__ == '__main__':
     
     prob_distros["smile"]={0:0.6,1:0.4}
     
+    #Eating depends on whether you were eating something in the last time step, slighly avoiding repetitions. If someone was eating something before,
+    #they are less likely to eat again
     prob_distros["eat"]={}
     prob_distros["eat"][(("p","result_eat","me","fries"),0,("p","result_eat","me","sandwich"),0)]  ={"fries":0.2, "sandwich":0.2, "none":0.6}
     prob_distros["eat"][(("p","result_eat","me","fries"),1,("p","result_eat","me","sandwich"),0)]  ={"fries":0.1, "sandwich":0.1, "none":0.8}
     prob_distros["eat"][(("p","result_eat","me","fries"),0,("p","result_eat","me","sandwich"),1)]  ={"fries":0.1, "sandwich":0.1, "none":0.8}
     
+    #Similar as eating
     prob_distros["drink"]={}
     prob_distros["drink"][(("p","result_drink","me","cola"),0,("p","result_drink","me","tea"),0)]  ={"cola":0.15,"tea":0.15,"none":0.7}
     prob_distros["drink"][(("p","result_drink","me","cola"),1,("p","result_drink","me","tea"),0)]  ={"cola":0.1, "tea":0.2, "none":0.7}
@@ -231,19 +246,20 @@ if __name__ == '__main__':
     prob_distros["hit"][(("rain",),1)]  ={0:0.5, 1:0.5}
     prob_distros["hit"][(("rain",),0)]  ={0:0.7, 1:0.3}
     
+    #We integreate this probabilities into the microworld
     world.set_probability_distros(prob_distros)
   
-    #We let the world run for n=30,000 time steps
-    models=world.run(30000,random)
+  
+  
+    #ONCE THE MICROWORLD IS FULLY DEFINED, WE CAN LET IT "RUN" IN ORDER TO SAMPLE OBSERVATIONS
+    #Let the world run for n=30,000 time steps
+    models=world.run(1000,random)
     
-    #Then we save the generated observations into files
-    with open("../outputs/street_life_model/street_life30K.observations",'w') as output_file:
+    #Then we save the generated observations into file
+    with open("../outputs/street_life1K.observations",'w') as output_file:
         models[0].print_basic_propositions(file=output_file) 
         for model in models: model.print_binary_vector(file=output_file)
     
-    #The file street_life.observations can be used to test that nothing has changed during refactoring:
-    #If something changes, the output with random seed=10 would be different
-
     exit()
     #The files that are generated below are quite verbosed, so they are mostly used for debugging because they can become huge if we sample say 10,000 observations
     with open("../outputs/street_life_model/formal_models1000.txt",'w') as output_file: 

@@ -14,22 +14,27 @@
 %     limitations under the License.
 '''
 
-'''
-Created on Jan 25, 2022
-
-@author: jesus calvillo
-'''
-
 
 class Formal_Model:
+    '''
+    Created on Jan 25, 2022    
+    @author: jesus calvillo
+    
+    Container class that saves instances of observations or "formal models". Each Formal_Model is one instant
+    in the microworld. 
+    It is essentially a binary vector with labels. 
+    '''
     def __init__(self,time,basic_propositions):
-        self.time=time
-        self.basic_propositions=basic_propositions
-        self.proposition_values={}
+        self.time=time                              #time step within the microworld
+        self.basic_propositions=basic_propositions  #set of basic propositions
+        self.proposition_values={}                  #truth values of the basic propositions
         for b_prop in self.basic_propositions:
             self.proposition_values[b_prop]=0
             
     def print_basic_propositions(self,file=None):
+        """
+        Pretty prints the set of basic prepositions.
+        """
         props=[]
         for prop in self.basic_propositions:
             prop_string=prop[0]
@@ -49,6 +54,10 @@ class Formal_Model:
         
     
     def print_me(self,only_true=True, file=None):
+        '''
+        Pretty prints the observation. This can be done to the system output or to a file.
+        One can also specify whether we should only consider basic propositions with the truth value=1.
+        '''
         if file: 
             file.write("==================================================\n")
             file.write("MODEL OBSERVATION AT TIME "+str(self.time)+"\n")
@@ -76,8 +85,13 @@ class Formal_Model:
                 else: print(str(self.proposition_values[b_prop])+"\t"+res)
                 
     
-    #Even though prolog prints numbers with 6 decimal digits, it seems it also accepts no digits and behaves the same, w.r.t. binary vectors
     def print_binary_vector(self, file=None):
+        '''
+        Prints only the binary vector. It is used to print the file of observations that is to be read 
+        later by the code in prolog.
+        Even though prolog prints numbers with 6 decimal digits, it seems it also accepts no digits and 
+        behaves the same, w.r.t. binary discrete vectors.
+        '''
         vect=[self.proposition_values[prop] for prop in self.basic_propositions]
         vect=[f"{var:.0f}" for var in vect]
         res=" ".join(vect)

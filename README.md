@@ -1,9 +1,9 @@
 # Dynamic Distributed Situation Space
 
 This is a Python implementation of a new version of the Distributed Situation Space which differs from other related implementations [2-5] 
-in that it samples microworld observations sequentially and with temporal dependencies between them.
+in that it samples microworld observations sequentially with temporal dependencies between them.
 
-A microworld is defined as in [1-5] in terms of a set of basic propositions, which put together can 
+A microworld is defined as in [1-5] in terms of a set of basic propositions which put together can 
 characterize the state of affairs of the microworld at any time t. Each observation is a binary vector that encodes the full state of affairs 
 of the microworld at a particular moment t, where each dimension encodes whether a given basic proposition is true (with a value of 1) or 
 false (with value of 0). Each observation depends on the previous observations at times t-1,t-2,t-3... The length of these dependencies depends on 
@@ -11,15 +11,15 @@ the design of the particular microworld.
 
 The main contribution of this repository is a framework in which microworlds can be defined and simulated in order
 to sample observations with temporal continuity. This can be used to build a situation space matrix by putting together the vectors 
-of the set of sampled observations in the order in which they were sampled, which encodes the temporal dependencies. 
+of the set of sampled observations in the order in which they were sampled. 
 
 Having the desired situation space matrix, we use the DSS [dispace](https://github.com/hbrouwer/dispace) implementation of 
-Harm Brouwer and colleagues in order to define a grammar to generate sentences and their propositional logic form, and finally, using the 
-sampled situation space matrix, the DSS vector representations, which can later be used for computational modeling purposes.
+Harm Brouwer and colleagues in order to define a grammar to generate sentences and their propositional logic form. Finally, using the 
+sampled situation space matrix, we can obtain the DSS vector representations, which can later be used for computational modeling purposes.
 
 ## Related Work
-The situation space matrix is an ordered set of observations where the values/state of affairs of an observation at time t depend
-on the observation at time t-1. In this aspect, this work is identical to the DSS model described in [1]. However, it differs 
+The situation space matrix here is an ordered set of observations where the values/states of affairs of an observation at time t depend
+on the observation at time t-1 and before. In this aspect, this work is identical to the DSS model described in [1]. However, it differs 
 from [2-5], as those frameworks sample observations with no dependencies between them (but they do encode dependencies between 
 propositions within a given observation).
 
@@ -48,14 +48,19 @@ rules. The original rules were preserved, and the new modified rules were added 
 
 ## Usage
 This framework mixes the previous DSS Prolog implementation with new Python code in order to define and sample observations of a microworld.
-As a first step, we define the microworld in Python and sample observations in order to generate the situation space matrix.
-As a second step, we define the grammar that generates sentences about the microworld with their propositional form semantics. The propositions used here
+
+The steps to do so are roughly:
+- first, we define the microworld in Python and sample observations in order to generate the situation space matrix.
+- second, we define the grammar that generates sentences about the microworld with their propositional form semantics. The propositions used here
 should be the same used for the definition of the microworld.
-The final step corresponds to linking the situation space matrix of step 1 with the sentences of the grammar of step 2, in order to generate
+- third, we link the situation space matrix of step 1 with the sentences of the grammar of step 2, in order to generate
 a dataset of sentences with their corresponding DSS representations.
 
 The output files generated are not included in the github repository due to limitations of github. However, they can be generated using the instructions below.
 
+### Software Requirements
+
+The original DSS code runs on Prolog (swipl). The python code assumes Python 3.
 
 ### Generating the Situation Space Matrix (Step 1)
 
@@ -112,18 +117,6 @@ sampled in order to generate the situation space matrix, in our case 30,000.
 
 Different visualizations for the dataset created with the Street Life microworld can be seen [here](https://github.com/iesus/dynamic-dss-websites)
 
-
-### Model Architecture
-
-The proposed model architecture at this point is the one in the following image:
-
-![Model Architecture](https://github.com/iesus/dynamic_dss/blob//main/architecute.png)
-
-The model has 3 main parts, the part inside the blue rectangle is essentially the same as the model in Frank et al. (2009): a model of sentence comprehension that maps sentences to their semantic representations, in this case belief vectors. The part inside the green rectangle is very similar to the model of Elman & McRae: given a state-of-affairs, it predicts the next state(s). The part inside the yellow rectangle is identical to the green rectangle, except that it infers the previous state-of-affairs given the current state-of-affairs. Together, the model can receive a sentence and:
-
-- Infer how is the state of the microworld at the moment where the given sentence is true.
-- Predict how is going to be the state of the microworld in the next steps.
-- Infer how was the state of the microworld in the previous steps.
 
 ## References
 

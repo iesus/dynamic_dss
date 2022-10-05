@@ -86,11 +86,13 @@ gen_set(Set,SetType,VecType,OriginalSM,ReducedSM,FileBase) :-
         close(Stream).
         
 %JESUS CALVILLO
+%Generates the set of sentences with their propositional logic AND DSS representations
+%gen_set_short(Set+,OriginalSM+,FileBase+)
 gen_set_short(Set,OriginalSM,FileBase) :-
-        findall((Sen,Sem),sentence(Set,Sem,Sen,[]),Sens),
-        format(atom(Filename),'~w.~w.set',[FileBase,Set]),
-        open(Filename,write,Stream),
-        write_comprehension_items_short(Sens,OriginalSM,Stream),
+        findall((Sen,Sem),sentence(Set,Sem,Sen,[]),Sens),  %finds all the sentences according to the grammar
+        format(atom(Filename),'~w.~w.set',[FileBase,Set]), %filename
+        open(Filename,write,Stream),			   %create new file
+        write_comprehension_items_short(Sens,OriginalSM,Stream),%write sentences to file
         close(Stream).
 
 % gen_lexical_semantics_set(+Set,+FileBase)
@@ -146,14 +148,18 @@ write_comprehension_items([(Sen,Sem)|Sens],OriginalSM,ReducedSM,WordVecs,Stream)
         write_comprehension_items(Sens,OriginalSM,ReducedSM,WordVecs,Stream).
         
 %JESUS CALVILLO (the rules with that end in "_short")
+%Depending on the type of sentence, we can use one of the 3 following rules. The first one is to finish the process. 
+%The second one is to write sentences of situations that occured in the microworld during the sampling.
+%The third one is to write sentences of situations that never occurred during the sampling in the microworld.
 write_comprehension_items_short([],_,_).
 write_comprehension_items_short([(Sen,Sem)|Sens],OriginalSM,Stream) :-
-        dss_semantics:dss_semantics_vector(Sem,OriginalSM,TargetVec), !,
+        dss_semantics:dss_semantics_vector(Sem,OriginalSM,TargetVec), !, %If this returns false, it quits and tries the next rule
         write('V '), write(Sen),nl,
         dss_semantics:dss_format_formula(Sem,FormattedSem),
         format_item_short(Sen,FormattedSem,TargetVec,Stream),
         write_comprehension_items_short(Sens,OriginalSM,Stream).
         
+%This is executed when the previous rule fails, which means the situation never occurred during sampling
 write_comprehension_items_short([(Sen,Sem)|Sens],OriginalSM,Stream) :-
         length(OriginalSM,NumDims),
         gen_zero_vector(NumDims,TargetVec), !,
@@ -219,7 +225,9 @@ format_item(Sen,Meta,InputVecs,TargetVecs,Stream) :-
         format(Stream,'\"~w\"\n',Meta), %% ~s to ~w for Sem
         format_events(InputVecs,TargetVecs,Stream),
         format(Stream,'\n',[]).
+
 %JESUS CALVILLO        
+%It writes each sentence and vector to the Stream file
 format_item_short(Sen,Meta,TargetVec,Stream) :-
         format(Stream,'\"',[]),
         format_name(Sen,Stream),
@@ -267,7 +275,8 @@ format_vector([Unit|Units],Stream) :-
         format(Stream,'~f ',Unit),
         format_vector(Units,Stream).
 
-%JESUS CALVILLO       
+%JESUS CALVILLO
+%These write a vector into the Stream file       
 format_vector_short([Unit],Stream) :-
         !, format(Stream,'~0f',Unit).
 format_vector_short([Unit|Units],Stream) :-

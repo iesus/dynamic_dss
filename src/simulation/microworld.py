@@ -23,22 +23,12 @@ import copy
 from formal_model import Formal_Model
 from eventualities import Eventuality
 
-#TODO: the logging capability defined here below is not really used anywhere, we can use it or just delete it
-import logging
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG) # process everything, even if everything isn't printed
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-logger.addHandler(ch)
-
-fh = logging.FileHandler('myLog.log')
-fh.setLevel(logging.DEBUG) 
-logger.addHandler(fh)
-
-
 
 class Microworld(object):
+    '''
+    An entity that contains participants, things, locations, and where eventualities occur. 
+    With the "run" method, we can let the microworld run n timesteps, generating n observations.
+    ''' 
     def __init__(self):
         self.participants = {}
         self.things={}
@@ -67,17 +57,25 @@ class Microworld(object):
             self.eventuality_types[ev_type_name].add_probability_distribution(prob_distro)
     
     def relocate_participant(self,participant,new_location):
+        '''
+        Moves a participant to a different location.
+        '''
         self.location_map(participant.current_location).participants.remove(participant)
         participant.current_location=new_location
         self.location_map(new_location).participants.append(participant)
         
 
     def apply_eventuality_effects(self,eventuality,formal_model,random_generator,effects=None):
+        '''
+        Apply the effects of a given eventuality into the current state of affairs.
+        Returns a list of new eventualities that are to be created (if any).
+        '''
         if effects is None: effects=eventuality.get_effects(formal_model.time)
         
-        #There are 2 types of interruptions: by hitting or falling. Hitting is handle in the main run method, when we checked if patients are interrupted
+        #Interruptions are not handled here.
+        #There are 2 types of interruptions: by hitting or falling. Hitting is handled in the main run method, when we check if patients are interrupted
         #Falling occurs in 2 time steps, in the first one people start to fall, while their other activities may continue
-        #In the second time step, the interruptions occurs, that's why the interruption is handle also in the run method before the participants create new eventualities
+        #In the second time step, the interruptions occur, that's why the interruption is handled also in the run method before the participants create new eventualities
 
         formal_model.apply_values(effects.proposition_values)
         for part,new_loc in effects.new_locations.items():self.relocate_participant(self.participants[part], new_loc)
@@ -119,8 +117,9 @@ class Microworld(object):
     def deactivate_participant_eventualities(self,participant,agenda,indices=None):
         '''
         Creates a boolean list of indices signaling the eventualities in the agenda where the participant is NOT the agent,
-        deactivating (giving 0) those where the participant is the agent
-        At the same time the abilities are returned to the participant
+        deactivating (assigning them to 0) those where the participant is the agent.
+        At the same time the abilities are returned to the participant, so they can initiate new eventualities of those types.
+        This cancels ONGOING eventualities.
         '''
         if indices is None:indices=[1 for i in range(len(agenda))]
                         
@@ -132,6 +131,10 @@ class Microworld(object):
         return indices
     
     def cancel_new_participant_eventualities(self,participant,new_agenda):
+        '''
+        Similar to the method above, except that here the eventualities are cancelled before they begin, when they are still
+        in the agenda for the next time step.
+        '''
         new_new_agenda=[]   
         for ag_eventuality in new_agenda:
             if ag_eventuality.roles["agent"].name!= participant.name: new_new_agenda.append(ag_eventuality)
@@ -140,6 +143,12 @@ class Microworld(object):
         return new_new_agenda
     
     def run(self,time_steps,random_generator):
+        '''
+        Returns a list of observations with lenght==time_steps. 
+        It initializes the microworld and incrementally (one step at a time) generates the required observations.
+        Each observation depends on the previous ones.
+        '''
+        
         previous_formal_model=Formal_Model(0,self.propositions)
         
         previous_formal_model.proposition_values[("rain",)]=random_generator.choice([0,1])#initial weather

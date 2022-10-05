@@ -17,6 +17,10 @@
 import copy
               
 class Eventuality_Type:
+    '''
+    Provides a definition of a type of eventuality. An object of this type can generate "Eventuality" objects, which are specific instances of eventualities.
+    Here we provide a range of parameters in which a particular eventuality can fall. 
+    '''
     def __init__(self, name, aspectual_type, duration_mean=1,duration_var=0, rols={}, reqs={}, init_conseqs={}, interrupts_agent=False, interrupts_patient=False):
         self.name = name
         self.aspectual_type=aspectual_type
@@ -30,6 +34,7 @@ class Eventuality_Type:
         self.interrupts_patient=interrupts_patient #this is true if the ev_type interrupts the activities of other participants (e.g. hitting interrupts whomever gets hit)
         self.interrupts_agent=interrupts_agent #this means the predicate interrupts whoever makes it true, e.g. fall
   
+        #Depending on the aspectual type, each eventuality_type has different phases
         if self.aspectual_type in ["accomplishment"]:
             self.phases=["begin_","middle_","result_"]
         elif self.aspectual_type in ["culmination"]:
@@ -37,6 +42,9 @@ class Eventuality_Type:
         else:self.phases=[]  #If the eventuality is a state , process or happening, there are no phases
     
     def print_me(self):
+        '''
+        Pretty prints the object, used for debugging.
+        '''
         print(self.name)
         print(self.aspectual_type)
         print(self.roles)
@@ -52,7 +60,7 @@ class Eventuality_Type:
         
     def add_probability_distribution(self,distro):
         '''
-        A distribution is a dictionary from conditional factors to a dictionary of output values
+        A distribution is a dictionary from conditional factors to a dictionary of output values.
         prob_distros["smile"]={0:0.6,1:0.4}
         prob_distros["eat"]={}
         prob_distros["eat"][(("p","eat","me","fries"),0,("p","eat","me","sandwich"),0)]    ={"fries":0.2, "sandwich":0.2, "none":0.6}
@@ -70,6 +78,9 @@ class Eventuality_Type:
         self.probability_distro=distro
 
     def get_agent_phase_propositions(self,phase_predicate,agent):
+        '''
+        Given a predicate and an agent, generate all the possible combinations of the predicate with its phases.
+        '''
         propositions=[]
         if len(self.roles)==1:#if it's a single place predicate 
             propositions.append((phase_predicate,agent.name))
@@ -81,6 +92,9 @@ class Eventuality_Type:
         return propositions
     
     def get_agent_propositions(self,agent):
+        '''
+        Given an agent generate the possible propositions for the current eventuality, with its phases 
+        '''
         propositions=[]
         if self.phases:
             for phase in self.phases:
@@ -91,8 +105,10 @@ class Eventuality_Type:
         return propositions 
         
     def get_probability_value(self,formal_models,agent_name,random_generator):
-        
-        
+        '''
+        Compute the probability of occurrence of the current eventuality type. Depending on this value,
+        an instance of this eventuality may be created (an object of Eventuality)
+        '''
         one_key=list(self.probability_distro.keys())[0]
         if not isinstance(one_key,tuple):
             return random_generator.choices(list(self.probability_distro.keys()),self.probability_distro.values())[0]
@@ -110,7 +126,6 @@ class Eventuality_Type:
             
             
             prob_distro=self.probability_distro[tuple(dict_key)]
-            #print(prob_distro)
             new_object=random_generator.choices(list(prob_distro.keys()),prob_distro.values())[0]
             
             return new_object
@@ -118,6 +133,9 @@ class Eventuality_Type:
             
     
 class Eventuality_Effects:
+    '''
+    Container for information related to the effects of a given eventuality on othe next or current state of affairs.
+    '''
     def __init__(self, eventuality):
         self.eventuality=eventuality
         self.new_locations={}     
@@ -126,10 +144,14 @@ class Eventuality_Effects:
         self.interruptions=[]
         
 class Eventuality:
+    '''
+    Each object of this class is an instance of an Eventuality_Type.
+    '''
     def __init__(self,ev_type,initial_time,initial_location,random_generator, duration=False, roles={}, trajectory=None):
         self.type=ev_type
         self.initial_time=initial_time
         
+        #If the total duration is not given as a parameter, it is a random variable with mean ev_type.duration_mean
         if not duration:self.duration=ev_type.duration_mean+random_generator.choice(range(-ev_type.duration_variation,ev_type.duration_variation+1))
         else: self.duration=duration
         
@@ -151,14 +173,15 @@ class Eventuality:
             self.phase=-1 #This means there are no phases
             self.proposition=tuple(proposition)
         
-        #Activating an eventuality means the participant cannot engage in the same one
+        #Activating an eventuality means the participant cannot engage in the same one again
         if self.type.name in self.roles["agent"].current_abilities:
             self.roles["agent"].current_abilities.remove(self.type.name)
         
-        #We attach each eventuality to its agent participant
-        #self.roles["agent"].current_eventualities.append(self)
         
     def change_phase(self):
+        '''
+        As time passes by in the microworld, each eventuality changes their phase.
+        '''
         if self.phase==-1: return 
         elif self.phase+1>=len(self.type.phases):print("there are no more phases")
         else:
@@ -169,14 +192,20 @@ class Eventuality:
             
     #TODO: parameterize fall, hit, walk_to, drive_to, cross_street
     def get_effects(self,time_step):
+        '''
+        When an eventuality is created, or as time passes by, it can have effects on the state of affairs of the microworld,
+        Here we monitor for those effects and return them in an Eventuality_Effects object.
+        '''
         new_effects=Eventuality_Effects(self)
         time_lapsed = time_step - self.initial_time + 1 #current time inclusive (i.e. if this is the first step, it has been already 1 time step)
         
         #INTERRUPTIONS
+        #When falling or hitting happens, the agent/patient needs to cancel their activities
         if self.type.name=="fall" and time_lapsed==2:new_effects.interruptions=[self.roles["agent"]]
         if self.type.name=="hit": new_effects.interruptions=[self.roles["patient"]]
             
         #MOVEMENT
+        #When someone is walking or the bus is driving, depending on how much time has passed by, the agents need to change location
         if self.type.name in ["walk_to","drive_to"]:
             agent=self.roles["agent"]
             

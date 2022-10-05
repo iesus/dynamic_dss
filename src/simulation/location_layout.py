@@ -23,11 +23,14 @@ from copy import deepcopy
 
 
 class Location:
+    '''
+    Container that contains information about the locations in the microworld.
+    '''
     def __init__(self, name,coords):
         self.name = name
-        self.coords=coords
-        self.paths={}
-        self.participants=[]
+        self.coords=coords #Coordinates within a 2d plane
+        self.paths={}      #The set of paths to reach each other location that is reachable from the current location
+        self.participants=[]#The set of participants that are currentnly at this location
     
     def __call__(self):
         return self.name
@@ -38,6 +41,9 @@ class Location:
         print(self.paths)
         
 class Location_Map:
+    '''
+    Container that contains Location objects that are ordered according to coordinates
+    '''
     def __init__(self, names_coords):
         self.locations={}
         self.location_coordinates={}
@@ -54,7 +60,8 @@ class Location_Map:
             
     def get_trajectory(self, initial_position, destination):
         '''
-        Given 2 coordinates in a 2D discrete plane, give one possible trajectory to go from initial_position to destination
+        Given 2 coordinates in a 2D discrete plane, gives ONE possible trajectory to go from initial_position to destination.
+        If there are multiple possible trajectories, only the first one is given.
         '''
         curr_pos=list(initial_position)#We just make sure that the positions are lists and not tuples
         destination=list(destination)

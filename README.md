@@ -47,13 +47,15 @@ rules. The original rules were preserved, and the new modified rules were added 
 
 
 ## Usage
-This framework mixes the previous DSS Prolog implementation with new Python code in order to define and sample observations of a microworld.
+This framework mixes the previous DSS Prolog implementation with new Python code. The Python code is introduced in order to define and sample observations of a microworld, i.e., to 
+generate a Situation Space matrix. The rest of the process (sentence generation and the generation of DSS vectors for complex propositional forms) remains as in the original DSS/DFS.
+The end result is a set of sentences paired to their corresponding semantic representations (DSS vectors).
 
 The steps to do so are roughly:
-- first, we define the microworld in Python and sample observations in order to generate the situation space matrix.
-- second, we define the grammar that generates sentences about the microworld with their propositional form semantics. The propositions used here
+1. Define the microworld in Python and sample observations in order to generate the situation space matrix.
+2. Define the grammar that generates sentences about the microworld with their propositional form semantics. The propositions used here
 should be the same used for the definition of the microworld.
-- third, we link the situation space matrix of step 1 with the sentences of the grammar of step 2, in order to generate
+3. Link the situation space matrix of step 1 with the sentences of the grammar of step 2, in order to generate
 a dataset of sentences with their corresponding DSS representations.
 
 The output files generated are not included in the github repository due to limitations of github. However, they can be generated using the instructions below.
@@ -105,7 +107,7 @@ In order to do so, one has to first load the file [street_life.pl](https://githu
 swipl (this file references code in the whole dss directory). Then run the following line:
 
 ```
-  dss_read_vectors('street_life30K.observations',SM),gen_set_short('simple',SM,'street_life_model')..
+  dss_read_vectors('street_life30K.observations',SM),gen_set_short('simple',SM,'street_life_model').
 ```
 where 'street_life.observations' is the file that contains the situation space matrix (generated in Step 1).
 

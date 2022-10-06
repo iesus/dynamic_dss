@@ -70,7 +70,12 @@ In contrast to [2-6], who generate the situation space matrix using a prolog scr
 we define a microworld in Python such that each observation depends on the previous ones.
 
 This is done in the file [street_life_world.py](https://github.com/iesus/dynamic_dss/blob/main/src/simulation/street_life_world.py), which uses
-classes and methods from the files in the same directory. 
+classes and methods from the files in the same directory.
+
+To run this file, one has to be inside the directory src/simulation (for the relative paths to work), and then just run the script.
+```
+  python3 street_life_world.py
+```
 
 At the end of the file, the line:
 ```

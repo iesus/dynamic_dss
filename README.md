@@ -67,7 +67,7 @@ The original DSS code runs on Prolog (swipl). The python code assumes Python 3.
 ### Generating the Situation Space Matrix (Step 1)
 
 In contrast to [2-6], who generate the situation space matrix using a prolog script that samples observations independently from one another, here
-we define a microworld in Python such that each observation depends on the previous one.
+we define a microworld in Python such that each observation depends on the previous ones.
 
 This is done in the file [street_life_world.py](https://github.com/iesus/dynamic_dss/blob/main/src/simulation/street_life_world.py), which uses
 classes and methods from the files in the same directory. 
@@ -90,7 +90,7 @@ generate a file that can be read by prolog, in order to be used by the rest of t
 Similar to [1-6], I use the DSS prolog implementation in order to define a grammar that generates sentences with their propositional logic form semantics.
 The grammar for "Street Life" is in the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob//main/src/dss/worlds/street_life.pl).
 
-One can run that file using SWIPL. After loading it, one can generate the sentences and write the to file using the line:
+One can run that file using SWIPL. After loading it, one can generate the sentences and write them to a file using the line:
 ```
   write_sentences.
 ```

@@ -70,9 +70,7 @@ In contrast to [2-6], who generate the situation space matrix using a prolog scr
 we define a microworld in Python such that each observation depends on the previous ones.
 
 This is done in the file [street_life_world.py](https://github.com/iesus/dynamic_dss/blob/main/src/simulation/street_life_world.py), which uses
-classes and methods from the files in the same directory.
-
-To run this file, one has to be inside the directory src/simulation (for the relative paths to work), and then just run the script.
+classes and methods from the files in the same directory. To run this file, one has to be inside the directory src/simulation (for the relative paths to work), and then just run the script.
 ```
   python3 street_life_world.py
 ```
@@ -100,7 +98,7 @@ One can run that file using SWIPL. After loading it, one can generate the senten
   write_sentences.
 ```
 which is a rule at the end of the file where one can specify the type of sentence that one wants and the name of the output file. Right now one can choose between simple sentences
-and coordinated sentences. The output file contains sentences with the propositional logic form semantics.
+and coordinated sentences. The output file contains sentences with the propositional logic form semantics. This generated file itself is not really used but it helps to debug the grammar.
 
 
 ### Generating the Dataset (Sentences with their DSS vectors, Step 3)
@@ -108,13 +106,12 @@ and coordinated sentences. The output file contains sentences with the propositi
 Having the situation space matrix defined and saved to a file using the Python code, we can load it in prolog in order to use it with the
 DSS code to generate the sentences and link them to their DSS representations. 
 
-In order to do so, one has to first load the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob//main/src/dss/worlds/street_life.pl) with
-swipl (this file references code in the whole dss directory). Then run the following line:
-
+In order to do so, we can run the following command from the root directory of the repository:
 ```
-  dss_read_vectors('street_life30K.observations',SM),gen_set_short('simple',SM,'street_life_model').
+ swipl -l src/dss/worlds/street_life.pl -g "dss_read_vectors('src/outputs/street_life30K.observations',SM),gen_set_short('simple',SM,'street_life_model')" -g halt
 ```
-where 'street_life.observations' is the file that contains the situation space matrix (generated in Step 1).
+which loads and runs the file [street_life.pl](https://github.com/iesus/dynamic_dss/blob//main/src/dss/worlds/street_life.pl) with
+swipl (this file references code in the whole dss directory), and where 'street_life_30K.observations' is the file that contains the situation space matrix (generated in Step 1).
 
 This will generate a file "street_life_model.train.localist.set", which contains the sentences with their corresponding DSS vector representations.
 The vectors in this file have not gone through a dimensionality reduction, therefore their dimensionality is equal to the number of observations that were
